@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>XzC - API</title>
+      <style>
+        body {
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          margin: 0;
+          padding: 20px;
+          background: linear-gradient(45deg, #0f0f0f, #1a1a1a, #0f0f0f);
+          background-size: 400% 400%;
+          animation: gradientShift 10s ease infinite;
+          color: #fff;
+          overflow-x: hidden;
+        }
+        @keyframes gradientShift {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        body::before {
+          content: '';
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: radial-gradient(circle at 20% 50%, rgba(255, 0, 150, 0.1) 0%, transparent 50%),
+                      radial-gradient(circle at 80% 20%, rgba(0, 204, 255, 0.1) 0%, transparent 50%),
+                      radial-gradient(circle at 40% 80%, rgba(255, 255, 0, 0.1) 0%, transparent 50%);
+          animation: shimmer 8s ease-in-out infinite alternate;
+          pointer-events: none;
+        }
+        @keyframes shimmer {
+          0% { opacity: 0.3; }
+          100% { opacity: 0.7; }
+        }
+        h1 {
+          color: #fff;
+          text-align: center;
+          text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+          animation: glow 2s ease-in-out infinite alternate;
+        }
+        @keyframes glow {
+          from { text-shadow: 0 0 20px rgba(255, 255, 255, 0.5); }
+          to { text-shadow: 0 0 30px rgba(255, 255, 255, 0.8); }
+        }
+        .header {
+          text-align: center;
+          margin-bottom: 30px;
+        }
+        .header img {
+          width: 100px;
+          height: 100px;
+          border-radius: 50%;
+          box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+          animation: rotate 20s linear infinite;
+        }
+        @keyframes rotate {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        .endpoint {
+          margin: 30px auto;
+          max-width: 600px;
+          padding: 20px;
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          border-radius: 15px;
+          background: rgba(0, 0, 0, 0.5);
+          backdrop-filter: blur(10px);
+          box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .endpoint:hover {
+          transform: translateY(-10px);
+          box-shadow: 0 10px 30px rgba(255, 255, 255, 0.2);
+        }
+        .endpoint h3 {
+          margin-top: 0;
+          color: #fff;
+          text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        form {
+          margin-top: 15px;
+        }
+        input, select, button {
+          padding: 10px;
+          margin: 5px;
+          border: none;
+          border-radius: 10px;
+          font-size: 16px;
+          transition: all 0.3s ease;
+        }
+        input, select {
+          background: rgba(255, 255, 255, 0.1);
+          color: #fff;
+          border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        input:focus, select:focus {
+          outline: none;
+          box-shadow: 0 0 10px rgba(0, 204, 255, 0.5);
+          background: rgba(255, 255, 255, 0.2);
+        }
+        button {
+          background: linear-gradient(45deg, #007bff, #00d4ff);
+          color: white;
+          cursor: pointer;
+          box-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
+        }
+        button:hover {
+          background: linear-gradient(45deg, #0056b3, #0099cc);
+          transform: scale(1.05);
+          box-shadow: 0 0 20px rgba(0, 123, 255, 0.5);
+        }
+        button:active {
+          transform: scale(0.95);
+        }
+        a {
+          color: #00d4ff;
+          text-decoration: none;
+          transition: color 0.3s ease;
+        }
+        a:hover {
+          color: #fff;
+          text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+        .result {
+          margin-top: 15px;
+          padding: 15px;
+          background: rgba(0, 0, 0, 0.7);
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          border-radius: 10px;
+          white-space: pre-wrap;
+          font-family: 'Courier New', monospace;
+          max-height: 300px;
+          overflow-y: auto;
+          color: #fff;
+          animation: fadeIn 0.5s ease;
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .error {
+          color: #ff6b6b;
+          text-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+        }
+        .creator {
+          text-align: center;
+          margin-top: 50px;
+          color: #ccc;
+          text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <img src="https://files.catbox.moe/hg2row.jpg" alt="x">
+        <h1>XzC - API</h1>
+      </div>
+
+      <div class="endpoint">
+        <h3>YouTube Search</h3>
+        <p>Search video/audio dari YouTube</p>
+        <form id="youtube-download-form">
+          <input type="text" name="query" placeholder="Masukkan url yt" required>
+          <select name="format">
+            <option value="mp3">MP3</option>
+            <option value="mp4">MP4</option>
+          </select>
+          <button type="submit">Download</button>
+        </form>
+        <div id="result-youtube-download" class="result" style="display:none;"></div>
+      </div>
+      
+      <div class="endpoint">
+        <h3>Text to Anime</h3>
+        <p>Mengubah prompt text anda menjadi model anime</p>
+        <form id="text2anm-form">
+          <input type="text" name="query" placeholder="Buat..." required>
+          <button type="submit">Buat...</button>
+        </form>
+        <div id="result-txt2anm" class="result" style="display:none;"></div>
+      </div>
+      
+      <div class="endpoint">
+        <h3>XnxX Search</h3>
+        <p>Search video porno dari xnxx</p>
+        <form id="xnxx-form">
+          <input type="text" name="query" placeholder="Cari..." required>
+          <button type="submit">Cari...</button>
+        </form>
+        <div id="result-xnxx" class="result" style="display:none;"></div>
+      </div>
+      
+      <div class="endpoint">
+        <h3>Nekopoi Search</h3>
+        <p>Search video porno dari nekopoi</p>
+        <form id="nekopoi-form">
+          <input type="text" name="query" placeholder="Cari..." required>
+          <button type="submit">Cari...</button>
+        </form>
+        <div id="result-nekopoi" class="result" style="display:none;"></div>
+      </div>
+
+      <div class="creator">
+        <p>© 7eppelixzC | XzC - Corporation</p>
+      </div>
+
+      <script>
+function handleFormSubmit(event, endpoint, resultId) {
+  event.preventDefault();
+  const formData = new FormData(event.target);
+  const params = new URLSearchParams(formData);
+  const url = '/api' + endpoint + '?' + params.toString();
+
+  fetch(url)
+    .then(response => response.json())
+    .then(data => {
+      document.getElementById(resultId).innerText = JSON.stringify(data, null, 2);
+      document.getElementById(resultId).style.display = 'block';
+    })
+  .catch(error => {
+    document.getElementById(resultId).innerText = 'Error: ' + error.message;
+    document.getElementById(resultId).classList.add('error');
+    document.getElementById(resultId).style.display = 'block';
+  });
+}
+
+document.getElementById('spotify-search-form').addEventListener('submit', (e) => handleFormSubmit(e, '/spotify/search', 'result-spotify-search'));
+  
+document.getElementById('spotify-info-form').addEventListener('submit', (e) => handleFormSubmit(e, '/spotify/info', 'result-spotify-info'));
+        
+document.getElementById('spotify-convert-form').addEventListener('submit', (e) => handleFormSubmit(e, '/spotify/convert', 'result-spotify-convert'));
+        
+document.getElementById('youtube-download-form').addEventListener('submit', (e) => handleFormSubmit(e, '/youtube/search', 'result-youtube-download'));
+
+document.getElementById('text2anm-form').addEventListener('submit', (e) => handleFormSubmit(e, '/text2/anime', 'result-txt2anm'));
+
+document.getElementById('nekopoi-form').addEventListener('submit', (e) => handleFormSubmit(e, '/porn/nekopoi', 'result-nekopoi'));
+      </script>
+    </body>
+</html>
