@@ -7,9 +7,7 @@ const path = require('path');
 const multer = require('multer');
 const crypto = require('crypto');
 const { FormData } = require('form-data');
-
 const app = express();
-const port = process.env.SERVER_PORT || process.env.PORT || 3000;
 
 const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID || "bfcffccc6ed4441b965cd81b10ddb561";
 const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET || "311427216ab64de1b3c0150ea43fd2c4";
@@ -953,8 +951,4 @@ app.use((err, req, res, next) => {
   } else if (err) {
     res.status(400).json({ error: err.message });
   }
-});
-
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
 });
