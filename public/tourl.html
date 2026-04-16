@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XzC - API | Uploader</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .svg-container {
+            width: 850px;
+        }
+    </style>
+</head>
+<body>
+
+    <svg class="svg-container" viewBox="0 0 450 500" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="cardGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#2d3561;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#1a1a2e;stop-opacity:1" />
+            </linearGradient>
+            <linearGradient id="btnGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" style="stop-color:#00d2ff;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#3a7bd5;stop-opacity:1" />
+            </linearGradient>
+            <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+                <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000" flood-opacity="0.3"/>
+            </filter>
+        </defs>
+
+        <!-- Main Card -->
+        <rect x="25" y="25" width="400" height="450" rx="20" fill="url(#cardGrad)" filter="url(#shadow)"/>
+
+        <!-- Title -->
+        <text x="225" y="70" text-anchor="middle" fill="#fff" font-size="24" font-weight="bold">Upload Image</text>
+        <text x="225" y="95" text-anchor="middle" fill="#888" font-size="14">Convert to URL</text>
+
+        <g id="uploadArea" onclick="document.getElementById('fileInput').click()" style="cursor: pointer">
+            <rect x="75" y="120" width="300" height="150" rx="12" fill="none" stroke="#444" stroke-width="2" stroke-dasharray="8,4"/>
+
+            <path id="cloudIcon" d="M160 210 
+                     Q160 190 175 190 
+                     Q180 170 200 170 
+                     Q220 170 225 190 
+                     Q240 190 240 210 
+                     Q240 230 220 230 
+                     L180 230 
+                     Q160 230 160 210" 
+                  fill="none" stroke="#00d2ff" stroke-width="3" stroke-linecap="round"/>
+            
+            <path d="M225 175 L225 155 M225 155 L215 165 M225 155 L235 165" 
+                  stroke="#00d2ff" stroke-width="3" stroke-linecap="round" fill="none" transform="translate(0, 10)"/>
+
+            <text x="225" y="300" text-anchor="middle" fill="#666" font-size="14">Klik untuk pilih gambar</text>
+            <text x="225" y="315" text-anchor="middle" fill="#444" font-size="12">JPG, PNG, GIF (Max 15MB)</text>
+        </g>
+
+        <image id="previewImage" x="75" y="120" width="300" height="150" preserveAspectRatio="xMidYMid slice" style="display: none"/>
+
+        <g id="btnUpload" onclick="uploadImage()" style="cursor: pointer">
+            <rect x="150" y="330" width="150" height="45" rx="25" fill="url(#btnGrad)"/>
+            <text x="225" y="358" text-anchor="middle" fill="#fff" font-size="16" font-weight="bold">UPLOAD</text>
+        </g>
+        <g id="resultArea" style="display: none">
+            <text x="225" y="400" text-anchor="middle" fill="#4ade80" font-size="16" font-weight="bold">✓ Upload Berhasil!</text>
+            
+            <rect x="75" y="420" width="300" height="40" rx="8" fill="#1a1a2e" stroke="#333"/>
+            <text id="urlText" x="85" y="443" fill="#00d2ff" font-size="11" textLength="280">http://...</text>
+
+        <text id="errorText" x="225" y="350" text-anchor="middle" fill="#ff6b6b" font-size="14" style="display: none"></text>
+
+    </svg>
+
+    <input type="file" id="fileInput" accept="image/*" style="display: none" onchange="fileSelected()">
+
+    <script>
+        let selectedFile = null;
+        let uploadedUrl = '';
+
+        function fileSelected() {
+            const fileInput = document.getElementById('fileInput');
+            const previewImage = document.getElementById('previewImage');
+            const cloudIcon = document.getElementById('cloudIcon');
+            
+            if (fileInput.files.length > 0) {
+                selectedFile = fileInput.files[0];
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImage.setAttribute('href', e.target.result);
+                    previewImage.style.display = 'block';
+                    cloudIcon.style.display = 'none';
+                };
+                reader.readAsDataURL(selectedFile);
+            }
+        }
+
+        async function uploadImage() {
+            const btnUpload = document.getElementById('btnUpload');
+            const resultArea = document.getElementById('resultArea');
+            const errorText = document.getElementById('errorText');
+            const urlText = document.getElementById('urlText');
+
+            if (!selectedFile) {
+                alert('Pilih gambar terlebih dahulu!');
+                return;
+            }
+
+            btnUpload.style.display = 'none';
+            errorText.style.display = 'none';
+            resultArea.style.display = 'none';
+
+            const formData = new FormData();
+            formData.append('image', selectedFile);
+
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                btnUpload.style.display = 'block';
+
+                if (response.status) {
+                    uploadedUrl = data.imageUrl;
+                    urlText.textContent = data.imageUrl;
+                    resultArea.style.display = 'block';
+                } else {
+                    errorText.textContent = data.message || 'Gagal upload';
+                    errorText.style.display = 'block';
+                }
+
+            } catch (error) {
+                console.error(error);
+                btnUpload.style.display = 'block';
+                errorText.textContent = 'Terjadi kesalahan koneksi';
+                errorText.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>
